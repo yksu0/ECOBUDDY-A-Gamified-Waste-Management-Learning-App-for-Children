@@ -74,10 +74,10 @@ class Pet {
     );
   }
 
-  // Calculate if pet needs attention
-  bool get needsFeeding => DateTime.now().difference(lastFed).inHours > 4;
-  bool get needsPlaying => DateTime.now().difference(lastPlayed).inHours > 6;
-  bool get needsCleaning => DateTime.now().difference(lastCleaned).inHours > 8;
+  // Calculate if pet needs attention (shortened for testing)
+  bool get needsFeeding => DateTime.now().difference(lastFed).inMinutes > 30; // 30 minutes
+  bool get needsPlaying => DateTime.now().difference(lastPlayed).inMinutes > 45; // 45 minutes  
+  bool get needsCleaning => DateTime.now().difference(lastCleaned).inMinutes > 60; // 1 hour
 
   // Calculate overall health
   double get healthPercentage => happiness / 100.0;

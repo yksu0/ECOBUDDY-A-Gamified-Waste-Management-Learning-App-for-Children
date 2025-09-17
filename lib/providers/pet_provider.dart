@@ -28,9 +28,9 @@ class PetProvider extends ChangeNotifier {
       final evolutionStageIndex = prefs.getInt('pet_evolution_stage') ?? 0;
       final emotionalStateIndex = prefs.getInt('pet_emotional_state') ?? 5;
       
-      final lastFedMs = prefs.getInt('pet_last_fed') ?? DateTime.now().subtract(const Duration(hours: 2)).millisecondsSinceEpoch;
-      final lastPlayedMs = prefs.getInt('pet_last_played') ?? DateTime.now().subtract(const Duration(hours: 1)).millisecondsSinceEpoch;
-      final lastCleanedMs = prefs.getInt('pet_last_cleaned') ?? DateTime.now().millisecondsSinceEpoch;
+      final lastFedMs = prefs.getInt('pet_last_fed') ?? DateTime.now().subtract(const Duration(minutes: 35)).millisecondsSinceEpoch;
+      final lastPlayedMs = prefs.getInt('pet_last_played') ?? DateTime.now().subtract(const Duration(minutes: 50)).millisecondsSinceEpoch;
+      final lastCleanedMs = prefs.getInt('pet_last_cleaned') ?? DateTime.now().subtract(const Duration(minutes: 65)).millisecondsSinceEpoch;
 
       _pet = Pet(
         name: name,
@@ -84,6 +84,7 @@ class PetProvider extends ChangeNotifier {
   }
 
   Future<void> feedPet() async {
+    debugPrint('Feed button pressed, needsFeeding: ${_pet.needsFeeding}');
     if (_pet.needsFeeding) {
       final happinessGain = 15;
       final xpGain = 10;
@@ -95,6 +96,7 @@ class PetProvider extends ChangeNotifier {
         lastFed: DateTime.now(),
       );
       
+      debugPrint('Pet fed! New happiness: ${_pet.happiness}, XP: ${_pet.xp}');
       _updateEmotionalState();
       notifyListeners();
       await _savePetData();
@@ -102,6 +104,7 @@ class PetProvider extends ChangeNotifier {
   }
 
   Future<void> playWithPet() async {
+    debugPrint('Play button pressed, needsPlaying: ${_pet.needsPlaying}');
     if (_pet.needsPlaying) {
       final happinessGain = 20;
       final xpGain = 15;
@@ -113,6 +116,7 @@ class PetProvider extends ChangeNotifier {
         lastPlayed: DateTime.now(),
       );
       
+      debugPrint('Played with pet! New happiness: ${_pet.happiness}, XP: ${_pet.xp}');
       _updateEmotionalState();
       notifyListeners();
       await _savePetData();
@@ -120,6 +124,7 @@ class PetProvider extends ChangeNotifier {
   }
 
   Future<void> cleanPet() async {
+    debugPrint('Clean button pressed, needsCleaning: ${_pet.needsCleaning}');
     if (_pet.needsCleaning) {
       final happinessGain = 10;
       final xpGain = 5;
@@ -131,6 +136,7 @@ class PetProvider extends ChangeNotifier {
         lastCleaned: DateTime.now(),
       );
       
+      debugPrint('Pet cleaned! New happiness: ${_pet.happiness}, XP: ${_pet.xp}');
       _updateEmotionalState();
       notifyListeners();
       await _savePetData();

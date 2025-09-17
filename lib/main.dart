@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/pet_provider.dart';
-import 'screens/home_screen.dart';
+import 'screens/main_screen.dart';
 
 void main() {
   runApp(const EcoBuddyApp());
@@ -23,7 +23,7 @@ class EcoBuddyApp extends StatelessWidget {
           ),
           useMaterial3: true,
         ),
-        home: const HomeScreen(),
+        home: const MainScreen(),
         debugShowCheckedModeBanner: false,
       ),
     );

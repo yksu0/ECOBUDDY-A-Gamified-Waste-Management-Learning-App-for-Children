@@ -40,6 +40,18 @@ dependencies:
   
   # Local Storage
   shared_preferences: ^2.2.2
+  
+  # Camera & Image Processing
+  camera: ^0.10.5+9
+  path_provider: ^2.1.2
+  path: ^1.8.3
+  
+  # Image handling
+  image: ^4.1.7
+  
+  # HTTP and JSON
+  http: ^1.2.1
+  convert: ^3.1.1
 
 dev_dependencies:
   flutter_test:

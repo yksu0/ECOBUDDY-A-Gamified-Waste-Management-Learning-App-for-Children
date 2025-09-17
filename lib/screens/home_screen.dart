@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/pet_provider.dart';
 import '../widgets/simple_pet_widget.dart';
 import '../models/pet.dart';
+import 'camera_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -36,6 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.green.shade600,
         elevation: 0,
         centerTitle: true,
+        automaticallyImplyLeading: false,
       ),
       body: Consumer<PetProvider>(
         builder: (context, petProvider, child) {
@@ -69,22 +71,6 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           );
         },
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          // TODO: Navigate to camera screen for trash scanning
-          context.read<PetProvider>().scanTrash();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Trash scanned! 🗑️ (Camera coming soon)'),
-              backgroundColor: Colors.green,
-            ),
-          );
-        },
-        backgroundColor: Colors.green.shade600,
-        foregroundColor: Colors.white,
-        icon: const Icon(Icons.camera_alt),
-        label: const Text('Scan Trash'),
       ),
     );
   }

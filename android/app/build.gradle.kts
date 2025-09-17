@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -5,10 +8,17 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// Load local properties for API keys
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
+}
+
 android {
     namespace = "com.example.ecobud"
-    compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    compileSdk = 36 // Updated for camera compatibility
+    ndkVersion = "27.0.12077973" // Updated for plugin compatibility
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -17,6 +27,10 @@ android {
 
     kotlinOptions {
         jvmTarget = JavaVersion.VERSION_11.toString()
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     defaultConfig {
@@ -28,6 +42,10 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        
+        // Add API key as build config with fallback
+        buildConfigField("String", "GOOGLE_VISION_API_KEY", "\"${localProperties.getProperty("GOOGLE_VISION_API_KEY") ?: "AIzaSyCwNoDPnl1YiUsQ_wTe7CEKwNFwkoJBD1M"}\"")
+        resValue("string", "google_vision_api_key", localProperties.getProperty("GOOGLE_VISION_API_KEY") ?: "AIzaSyCwNoDPnl1YiUsQ_wTe7CEKwNFwkoJBD1M")
     }
 
     buildTypes {
