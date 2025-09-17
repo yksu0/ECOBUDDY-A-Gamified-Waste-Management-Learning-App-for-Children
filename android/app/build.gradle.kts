@@ -43,9 +43,11 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         
-        // Add API key as build config with fallback
-        buildConfigField("String", "GOOGLE_VISION_API_KEY", "\"${localProperties.getProperty("GOOGLE_VISION_API_KEY") ?: "AIzaSyCwNoDPnl1YiUsQ_wTe7CEKwNFwkoJBD1M"}\"")
-        resValue("string", "google_vision_api_key", localProperties.getProperty("GOOGLE_VISION_API_KEY") ?: "AIzaSyCwNoDPnl1YiUsQ_wTe7CEKwNFwkoJBD1M")
+        // Add API key from local.properties (no fallback for security)
+        val apiKey = localProperties.getProperty("GOOGLE_VISION_API_KEY") 
+            ?: throw GradleException("GOOGLE_VISION_API_KEY not found in local.properties. Please add your Google Vision API key.")
+        buildConfigField("String", "GOOGLE_VISION_API_KEY", "\"$apiKey\"")
+        resValue("string", "google_vision_api_key", apiKey)
     }
 
     buildTypes {

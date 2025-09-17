@@ -1,0 +1,12 @@
+// API Keys Configuration Template
+// Copy this file to api_keys.dart and replace with your actual API keys
+// This template is safe to commit to version control
+
+class ApiKeys {
+  // Google Vision API Key
+  // Get your API key from: https://console.cloud.google.com/apis/credentials
+  static const String googleVisionApiKey = 'YOUR_GOOGLE_VISION_API_KEY_HERE';
+  
+  // Add other API keys here as needed
+  // static const String someOtherApiKey = 'YOUR_OTHER_API_KEY_HERE';
+}

@@ -5,24 +5,23 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import '../models/trash_item.dart';
+import '../config/api_keys.dart';
 
 class GoogleVisionService {
   static const String _baseUrl = 'https://vision.googleapis.com/v1/images:annotate';
-  static String _apiKey = 'AIzaSyCwNoDPnl1YiUsQ_wTe7CEKwNFwkoJBD1M'; // Fallback API key
+  static String _apiKey = ApiKeys.googleVisionApiKey;
 
-  // Initialize the service - try to get API key from Android build config
+  // Initialize the service - API key is now loaded from secure config
   static Future<void> initialize() async {
     try {
-      // Try to get API key from Android string resources
-      if (Platform.isAndroid) {
-        const platform = MethodChannel('flutter/platform_views');
-        // For now, we'll stick with the hardcoded key since the platform channel approach is complex
-        debugPrint('Using hardcoded API key for simplicity');
+      // Validate that API key is properly configured
+      if (_apiKey == 'YOUR_GOOGLE_VISION_API_KEY_HERE' || _apiKey.isEmpty) {
+        throw Exception('Google Vision API key not configured. Please add your API key to lib/config/api_keys.dart');
       }
       debugPrint('Google Vision Service initialized with API key: ${_apiKey.substring(0, 8)}...');
     } catch (e) {
-      debugPrint('Failed to get API key from platform, using fallback: $e');
-      // _apiKey is already set to the fallback value
+      debugPrint('Failed to initialize Google Vision Service: $e');
+      rethrow;
     }
   }
 
