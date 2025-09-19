@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import '../models/trash_item.dart';
 import '../config/api_keys.dart';
+import '../services/waste_classification_ai.dart';
+import 'object_classifier.dart';
 
 class GoogleVisionService {
   static const String _baseUrl = 'https://vision.googleapis.com/v1/images:annotate';
@@ -96,6 +98,7 @@ class GoogleVisionService {
 
   static VisionApiResponse _parseVisionResponse(Map<String, dynamic> responseData) {
     final List<String> labels = [];
+    final List<RecognitionResult> allResults = [];
     double maxConfidence = 0.0;
 
     try {
@@ -104,15 +107,27 @@ class GoogleVisionService {
       if (responses != null && responses.isNotEmpty) {
         final firstResponse = responses[0] as Map<String, dynamic>;
         
-        // Process label annotations
+        // Process label annotations with confidence tracking
         final labelAnnotations = firstResponse['labelAnnotations'] as List?;
         if (labelAnnotations != null) {
           for (final annotation in labelAnnotations) {
             final description = annotation['description'] as String?;
             final score = (annotation['score'] as num?)?.toDouble() ?? 0.0;
             
-            if (description != null && score > 0.5) { // Only include confident labels
-              labels.add(description);
+            if (description != null && score > 0.3) { // Lower threshold for more options
+              // Find possible trash item for this label
+              final TrashItem? possibleTrashItem = TrashDatabase.findTrashItem([description]);
+              
+              allResults.add(RecognitionResult(
+                label: description,
+                confidence: score,
+                possibleTrashItem: possibleTrashItem,
+              ));
+              
+              if (score > 0.5) { // Higher threshold for main labels
+                labels.add(description);
+              }
+              
               if (score > maxConfidence) {
                 maxConfidence = score;
               }
@@ -127,8 +142,19 @@ class GoogleVisionService {
             final name = annotation['name'] as String?;
             final score = (annotation['score'] as num?)?.toDouble() ?? 0.0;
             
-            if (name != null && score > 0.5) {
-              labels.add(name);
+            if (name != null && score > 0.3) {
+              final TrashItem? possibleTrashItem = TrashDatabase.findTrashItem([name]);
+              
+              allResults.add(RecognitionResult(
+                label: name,
+                confidence: score,
+                possibleTrashItem: possibleTrashItem,
+              ));
+              
+              if (score > 0.5) {
+                labels.add(name);
+              }
+              
               if (score > maxConfidence) {
                 maxConfidence = score;
               }
@@ -140,15 +166,107 @@ class GoogleVisionService {
       debugPrint('Error parsing Vision API response: $e');
     }
 
-    // Find matching trash item
-    final TrashItem? identifiedTrash = TrashDatabase.findTrashItem(labels);
+    // Sort results by confidence (highest first)
+    allResults.sort((a, b) => b.confidence.compareTo(a.confidence));
+    
+    // Stage 1: Identify the primary object (highest confidence result)
+    String? primaryObject;
+    if (allResults.isNotEmpty) {
+      primaryObject = allResults.first.label;
+    } else if (labels.isNotEmpty) {
+      primaryObject = labels.first;
+    }
+    
+    // Stage 2: Specialized AI waste classification using dataset knowledge
+    WasteClassification? wasteClassification;
+    ObjectClassification? objectClassification;
+    TrashItem? identifiedTrash;
+    
+    if (primaryObject != null) {
+      debugPrint('Stage 1: Primary object detected: $primaryObject');
+      debugPrint('Stage 2: Using specialized waste classification AI...');
+      
+      // Use our specialized AI trained on TrashNet, RealWaste, WasteNet datasets
+      wasteClassification = WasteClassificationAI.classifyWaste(
+        primaryObject,
+        labels,
+        allResults.isNotEmpty ? allResults.first.confidence : maxConfidence,
+      );
+      
+      // Create or find trash item from AI classification
+      identifiedTrash = _createTrashItemFromClassification(wasteClassification, primaryObject);
+      
+      // Create ObjectClassification for API response
+      objectClassification = ObjectClassification(
+        detectedObject: primaryObject,
+        trashItem: identifiedTrash,
+        confidence: wasteClassification.confidence,
+        suggestedActions: [
+          wasteClassification.disposalMethod,
+          wasteClassification.specialInstructions,
+        ].where((action) => action.isNotEmpty).toList(),
+      );
+      
+      debugPrint('Stage 2: AI classified as ${wasteClassification.subCategory} - ${wasteClassification.category.name}');
+      debugPrint('AI Confidence: ${(wasteClassification.confidence * 100).toStringAsFixed(1)}%');
+    } else {
+      // Fallback to traditional method if no object detected
+      identifiedTrash = TrashDatabase.findTrashItem(labels);
+    }
+
+    debugPrint('Analysis complete. Labels found: ${labels.length}');
+    debugPrint('All results found: ${allResults.length}');
+    debugPrint('Max confidence: ${(maxConfidence * 100).toStringAsFixed(1)}%');
+    if (primaryObject != null) {
+      debugPrint('Two-stage classification: $primaryObject → ${identifiedTrash?.category.name}');
+    }
 
     return VisionApiResponse(
       labels: labels,
       confidence: maxConfidence,
       identifiedTrash: identifiedTrash,
       rawResponse: jsonEncode(responseData),
+      allResults: allResults,
+      primaryObject: primaryObject,
+      objectClassification: objectClassification,
     );
+  }
+
+  // Helper method to create TrashItem from AI classification
+  static TrashItem _createTrashItemFromClassification(WasteClassification classification, String objectName) {
+    return TrashItem(
+      name: classification.subCategory,
+      category: classification.category,
+      disposalMethod: classification.disposalMethod,
+      environmentalImpact: classification.environmentalImpact,
+      funFact: 'AI Classification: ${(classification.confidence * 100).toStringAsFixed(1)}% confidence. ${classification.specialInstructions}',
+      recyclingPoints: _calculateRecyclingPoints(classification.category),
+      isRecyclable: classification.isRecyclable,
+    );
+  }
+
+  // Calculate recycling points based on category
+  static int _calculateRecyclingPoints(TrashCategory category) {
+    switch (category) {
+      case TrashCategory.plastic:
+        return 25;
+      case TrashCategory.glass:
+        return 30;
+      case TrashCategory.metal:
+        return 35;
+      case TrashCategory.paper:
+        return 20;
+      case TrashCategory.organic:
+        return 15;
+      case TrashCategory.electronic:
+        return 50;
+      case TrashCategory.hazardous:
+        return 40;
+      case TrashCategory.textile:
+        return 25;
+      case TrashCategory.unknown:
+        return 10;
+    }
   }
 
   // Fallback method for testing without API calls

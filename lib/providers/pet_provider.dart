@@ -1,16 +1,28 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/pet.dart';
+import '../services/achievement_service.dart';
+import '../services/challenge_service.dart';
 
 class PetProvider extends ChangeNotifier {
   Pet _pet = Pet.initial();
   bool _isLoading = false;
+  AchievementService? _achievementService;
+  ChallengeService? _challengeService;
 
   Pet get pet => _pet;
   bool get isLoading => _isLoading;
 
   PetProvider() {
     _loadPetData();
+  }
+
+  void setAchievementService(AchievementService achievementService) {
+    _achievementService = achievementService;
+  }
+
+  void setChallengeService(ChallengeService challengeService) {
+    _challengeService = challengeService;
   }
 
   Future<void> _loadPetData() async {
@@ -96,6 +108,10 @@ class PetProvider extends ChangeNotifier {
         lastFed: DateTime.now(),
       );
       
+      // Track pet care achievement and challenges
+      _achievementService?.recordPetCare();
+      _challengeService?.recordPetCareProgress();
+      
       debugPrint('Pet fed! New happiness: ${_pet.happiness}, XP: ${_pet.xp}');
       _updateEmotionalState();
       notifyListeners();
@@ -115,6 +131,9 @@ class PetProvider extends ChangeNotifier {
         level: _calculateNewLevel(_pet.xp + xpGain),
         lastPlayed: DateTime.now(),
       );
+      
+      // Track pet care challenges
+      _challengeService?.recordPetCareProgress();
       
       debugPrint('Played with pet! New happiness: ${_pet.happiness}, XP: ${_pet.xp}');
       _updateEmotionalState();

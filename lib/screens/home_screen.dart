@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/pet_provider.dart';
+import '../services/achievement_service.dart';
+import '../services/challenge_service.dart';
+import '../services/almanac_service.dart';
 import '../widgets/simple_pet_widget.dart';
+import '../widgets/achievement_notification.dart';
 import '../models/pet.dart';
 import 'camera_screen.dart';
+import 'achievements_screen.dart';
+import 'challenges_screen.dart';
+import 'almanac_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -38,6 +45,175 @@ class _HomeScreenState extends State<HomeScreen> {
         elevation: 0,
         centerTitle: true,
         automaticallyImplyLeading: false,
+        leading: Consumer<AlmanacService>(
+          builder: (context, almanacService, child) {
+            final stats = almanacService.getLearningStats();
+            
+            return Stack(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.menu_book, color: Colors.white),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const AlmanacScreen(),
+                      ),
+                    );
+                  },
+                  tooltip: 'Waste Almanac (${stats['viewedItems']}/${stats['totalItems']} learned)',
+                ),
+                // Badge showing learning progress
+                if (stats['viewedItems'] > 0)
+                  Positioned(
+                    right: 6,
+                    top: 6,
+                    child: Container(
+                      padding: const EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        color: Colors.purple,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
+                            blurRadius: 2,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 18,
+                        minHeight: 18,
+                      ),
+                      child: Text(
+                        '${stats['viewedItems']}',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ),
+              ],
+            );
+          },
+        ),
+        actions: [
+          // Challenges button
+          Consumer<ChallengeService>(
+            builder: (context, challengeService, child) {
+              final activeChallenges = challengeService.activeChallengeCount;
+              final completedToday = challengeService.completedTodayCount;
+              
+              return Stack(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.assignment, color: Colors.white),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const ChallengesScreen(),
+                        ),
+                      );
+                    },
+                    tooltip: 'Challenges ($completedToday completed today)',
+                  ),
+                  // Badge showing active challenges
+                  if (activeChallenges > 0)
+                    Positioned(
+                      right: 6,
+                      top: 6,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: completedToday > 0 ? Colors.green : Colors.orange,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 2,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 18,
+                          minHeight: 18,
+                        ),
+                        child: Text(
+                          '$activeChallenges',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+          
+          // Achievements button
+          Consumer<AchievementService>(
+            builder: (context, achievementService, child) {
+              final unlockedCount = achievementService.unlockedAchievements.length;
+              final totalCount = achievementService.allAchievements.length;
+              
+              return Stack(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.emoji_events, color: Colors.white),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => const AchievementsScreen(),
+                        ),
+                      );
+                    },
+                    tooltip: 'Achievements ($unlockedCount/$totalCount)',
+                  ),
+                  // Badge showing unlocked count
+                  if (unlockedCount > 0)
+                    Positioned(
+                      right: 6,
+                      top: 6,
+                      child: Container(
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.amber,
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 2,
+                              offset: const Offset(0, 1),
+                            ),
+                          ],
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 18,
+                          minHeight: 18,
+                        ),
+                        child: Text(
+                          '$unlockedCount',
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+        ],
       ),
       body: Consumer<PetProvider>(
         builder: (context, petProvider, child) {
@@ -67,6 +243,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 
                 // Needs Indicators
                 _buildNeedsIndicators(pet),
+                const SizedBox(height: 20),
+                
+                // Achievement Progress Section
+                _buildAchievementProgress(),
               ],
             ),
           );
@@ -495,5 +675,143 @@ class _HomeScreenState extends State<HomeScreen> {
     } else {
       return '${duration.inMinutes} minutes ago';
     }
+  }
+
+  Widget _buildAchievementProgress() {
+    return Consumer<AchievementService>(
+      builder: (context, achievementService, child) {
+        final totalScans = achievementService.scanStatistics.values.fold(0, (sum, count) => sum + count);
+        final unlockedCount = achievementService.unlockedAchievements.length;
+        
+        return Card(
+          elevation: 4,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              gradient: LinearGradient(
+                colors: [Colors.purple.shade50, Colors.blue.shade50],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(Icons.emoji_events, color: Colors.amber.shade600, size: 24),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Achievement Progress',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                    const Spacer(),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const AchievementsScreen(),
+                          ),
+                        );
+                      },
+                      child: const Text('View All'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                
+                // Total points and unlocked achievements
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildProgressStat(
+                        'Total Points',
+                        achievementService.totalPoints.toString(),
+                        Icons.stars,
+                        Colors.amber,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildProgressStat(
+                        'Achievements',
+                        '$unlockedCount / ${achievementService.allAchievements.length}',
+                        Icons.lock_open,
+                        Colors.green,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                
+                // Progress indicators
+                if (totalScans < 10) ...[
+                  AchievementProgressWidget(
+                    title: 'Explorer Progress',
+                    current: totalScans,
+                    total: 10,
+                    color: Colors.blue,
+                    icon: Icons.search,
+                  ),
+                ] else if (achievementService.currentStreak < 7) ...[
+                  AchievementProgressWidget(
+                    title: 'Weekly Champion',
+                    current: achievementService.currentStreak,
+                    total: 7,
+                    color: Colors.orange,
+                    icon: Icons.whatshot,
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildProgressStat(String title, String value, IconData icon, Color color) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  style: TextStyle(
+                    color: color,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: color.withOpacity(0.8),
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

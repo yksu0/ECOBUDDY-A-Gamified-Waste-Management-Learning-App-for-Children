@@ -4,6 +4,10 @@ import 'package:provider/provider.dart';
 import 'package:camera/camera.dart';
 import '../services/camera_service.dart';
 import '../services/google_vision_service.dart';
+import '../services/object_classifier.dart';
+import '../services/achievement_service.dart';
+import '../services/challenge_service.dart';
+import '../services/almanac_service.dart';
 import '../providers/pet_provider.dart';
 import '../models/trash_item.dart';
 
@@ -496,6 +500,40 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
       final response = await GoogleVisionService.analyzeImage(widget.imagePath);
       debugPrint('Analysis complete. Labels found: ${response.labels.length}');
       
+      // Track achievement, challenge, and almanac for successful scan
+      if (response.identifiedTrash != null && mounted) {
+        final achievementService = Provider.of<AchievementService>(context, listen: false);
+        final challengeService = Provider.of<ChallengeService>(context, listen: false);
+        final almanacService = Provider.of<AlmanacService>(context, listen: false);
+        
+        await achievementService.recordScan(
+          itemName: response.identifiedTrash!.name,
+          category: response.identifiedTrash!.category,
+          confidence: response.confidence,
+          recyclingPoints: response.identifiedTrash!.recyclingPoints,
+          readFunFact: false, // Will be updated when user reads fun fact
+          viewedDisposal: false, // Will be updated when user views disposal
+        );
+        
+        // Track challenge progress
+        await challengeService.recordScanProgress(
+          itemName: response.identifiedTrash!.name,
+          category: response.identifiedTrash!.category,
+          confidence: response.confidence,
+          readDisposal: false, // Will be updated when user reads disposal
+        );
+        
+        // Track almanac learning progress - try to find matching item
+        final similarItems = almanacService.getSimilarItems(response.identifiedTrash!.name);
+        if (similarItems.isNotEmpty) {
+          // Mark the most similar item as scanned
+          await almanacService.markItemScanned(similarItems.first.id);
+          debugPrint('Almanac tracking: Marked ${similarItems.first.name} as scanned');
+        }
+        
+        debugPrint('Achievement, Challenge & Almanac tracking: Recorded scan for ${response.identifiedTrash!.name}');
+      }
+      
       setState(() {
         _visionResponse = response;
         _isAnalyzing = false;
@@ -695,8 +733,11 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
   }
 
   Widget _buildResultState() {
-    final trashItem = _visionResponse?.identifiedTrash;
-    final labels = _visionResponse?.labels ?? [];
+    final visionResponse = _visionResponse!;
+    final TrashItem? trashItem = visionResponse.identifiedTrash;
+    final List<String> labels = visionResponse.labels;
+    final double confidence = visionResponse.confidence;
+    final List<RecognitionResult> allResults = visionResponse.allResults;
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -709,13 +750,36 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
             
             const SizedBox(height: 20),
             
+            // Two-stage detection results
+            if (visionResponse.primaryObject != null) ...[
+              _buildTwoStageResults(visionResponse),
+              const SizedBox(height: 20),
+            ],
+            
+            // Confidence indicator
+            _buildConfidenceIndicator(confidence, visionResponse.isHighConfidence),
+            
+            const SizedBox(height: 20),
+            
             if (trashItem != null) ...[
-              _buildTrashItemInfo(trashItem),
+              _buildTrashItemInfo(trashItem, confidence),
             ] else ...[
-              _buildUnknownItemInfo(labels),
+              _buildUnknownItemInfo(labels, allResults),
+            ],
+            
+            // Show alternative results if available
+            if (allResults.isNotEmpty && !visionResponse.isHighConfidence) ...[
+              const SizedBox(height: 20),
+              _buildAlternativeResults(allResults),
             ],
             
             const SizedBox(height: 20),
+            
+            // Manual correction button for low confidence
+            if (!visionResponse.isHighConfidence) ...[
+              _buildManualCorrectionButton(),
+              const SizedBox(height: 16),
+            ],
             
             // Complete button
             SizedBox(
@@ -789,7 +853,7 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
     );
   }
 
-  Widget _buildTrashItemInfo(TrashItem trashItem) {
+  Widget _buildTrashItemInfo(TrashItem trashItem, double confidence) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -872,12 +936,18 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
             trashItem.funFact,
             Icons.lightbulb,
           ),
+          
+          // Show suggested actions from object classification
+          if (_visionResponse?.objectClassification?.suggestedActions.isNotEmpty == true) ...[
+            const SizedBox(height: 12),
+            _buildSuggestedActions(_visionResponse!.objectClassification!.suggestedActions),
+          ],
         ],
       ),
     );
   }
 
-  Widget _buildUnknownItemInfo(List<String> labels) {
+  Widget _buildUnknownItemInfo(List<String> labels, List<RecognitionResult> allResults) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -948,6 +1018,53 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
     );
   }
 
+  Widget _buildSuggestedActions(List<String> suggestedActions) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.purple.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.purple.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.tips_and_updates, color: Colors.purple.shade600, size: 20),
+              const SizedBox(width: 8),
+              Text(
+                'Helpful Tips:',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.purple.shade600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          ...suggestedActions.map((action) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 2),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('• ', style: TextStyle(color: Colors.purple.shade600)),
+                Expanded(
+                  child: Text(
+                    action,
+                    style: const TextStyle(fontSize: 13),
+                  ),
+                ),
+              ],
+            ),
+          )).toList(),
+        ],
+      ),
+    );
+  }
+
   Widget _buildInfoSection(String title, String content, IconData icon) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -978,6 +1095,321 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildTwoStageResults(VisionApiResponse visionResponse) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.blue.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.blue.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Row(
+            children: [
+              Icon(Icons.psychology, color: Colors.blue.shade600),
+              const SizedBox(width: 8),
+              Text(
+                'Smart Recognition',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue.shade600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          
+          // Stage 1: Object Detection
+          Row(
+            children: [
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade600,
+                  shape: BoxShape.circle,
+                ),
+                child: const Center(
+                  child: Text(
+                    '1',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                'Object Detected:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  visionResponse.primaryObject ?? 'Unknown',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          
+          const SizedBox(height: 8),
+          
+          // Stage 2: Waste Classification
+          Row(
+            children: [
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: Colors.green.shade600,
+                  shape: BoxShape.circle,
+                ),
+                child: const Center(
+                  child: Text(
+                    '2',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Text(
+                'Waste Category:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Row(
+                  children: [
+                    Icon(
+                      _getCategoryIcon(visionResponse.identifiedTrash?.category ?? TrashCategory.unknown),
+                      size: 16,
+                      color: Colors.green.shade600,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      _getCategoryName(visionResponse.identifiedTrash?.category ?? TrashCategory.unknown),
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.green.shade600,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildConfidenceIndicator(double confidence, bool isHighConfidence) {
+    final percentage = (confidence * 100).round();
+    Color indicatorColor;
+    String confidenceText;
+    IconData confidenceIcon;
+
+    if (percentage >= 80) {
+      indicatorColor = Colors.green;
+      confidenceText = 'High Confidence';
+      confidenceIcon = Icons.check_circle;
+    } else if (percentage >= 60) {
+      indicatorColor = Colors.orange;
+      confidenceText = 'Medium Confidence';
+      confidenceIcon = Icons.help_outline;
+    } else {
+      indicatorColor = Colors.red;
+      confidenceText = 'Low Confidence';
+      confidenceIcon = Icons.warning;
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: indicatorColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: indicatorColor.withOpacity(0.3)),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Icon(confidenceIcon, color: indicatorColor),
+              const SizedBox(width: 8),
+              Text(
+                confidenceText,
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: indicatorColor,
+                ),
+              ),
+              const Spacer(),
+              Text(
+                '$percentage%',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: indicatorColor,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          LinearProgressIndicator(
+            value: confidence,
+            backgroundColor: indicatorColor.withOpacity(0.2),
+            valueColor: AlwaysStoppedAnimation<Color>(indicatorColor),
+            minHeight: 6,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            isHighConfidence 
+                ? 'Great! Our AI is confident about this identification.'
+                : 'Please review the result below. You can manually correct if needed.',
+            style: TextStyle(
+              fontSize: 12,
+              color: indicatorColor.withOpacity(0.8),
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAlternativeResults(List<RecognitionResult> allResults) {
+    final topResults = allResults.take(3).toList();
+    
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.blue.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.blue.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.lightbulb_outline, color: Colors.blue.shade600),
+              const SizedBox(width: 8),
+              Text(
+                'Other Possibilities',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue.shade600,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ...topResults.map((result) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    result.label,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '${(result.confidence * 100).round()}%',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.blue.shade700,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )).toList(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildManualCorrectionButton() {
+    return Container(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: _showManualCorrectionDialog,
+        icon: const Icon(Icons.edit),
+        label: const Text('Not Right? Correct Manually'),
+        style: OutlinedButton.styleFrom(
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          side: BorderSide(color: Colors.orange.shade400),
+          foregroundColor: Colors.orange.shade600,
+        ),
+      ),
+    );
+  }
+
+  void _showManualCorrectionDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Manual Correction'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('What type of trash is this?'),
+            SizedBox(height: 16),
+            // TODO: Add dropdown with trash categories
+            Text('This feature will be enhanced in the next update!'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              // TODO: Handle manual correction
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Manual correction saved! This helps improve our AI.'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+            child: const Text('Save'),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1027,10 +1459,14 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
     }
   }
 
-  void _completeScanning(BuildContext context, TrashItem? trashItem) {
+  void _completeScanning(BuildContext context, TrashItem? trashItem) async {
     // Reward the pet for scanning
     final petProvider = context.read<PetProvider>();
     petProvider.scanTrash();
+    
+    // Track daily usage for challenges
+    final challengeService = context.read<ChallengeService>();
+    await challengeService.recordDailyUsage();
     
     // Additional points for successful identification
     if (trashItem != null) {

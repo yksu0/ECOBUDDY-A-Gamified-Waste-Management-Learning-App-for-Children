@@ -35,12 +35,46 @@ class VisionApiResponse {
   final double confidence;
   final TrashItem? identifiedTrash;
   final String rawResponse;
+  final List<RecognitionResult> allResults; // Multiple possible results
+  final bool isHighConfidence; // Whether we trust this result
+  final String? primaryObject; // The main object detected (Stage 1)
+  final ObjectClassification? objectClassification; // Intelligent classification (Stage 2)
 
   const VisionApiResponse({
     required this.labels,
     required this.confidence,
     this.identifiedTrash,
     required this.rawResponse,
+    this.allResults = const [],
+    bool? isHighConfidence,
+    this.primaryObject,
+    this.objectClassification,
+  }) : isHighConfidence = isHighConfidence ?? confidence >= 0.7;
+}
+
+class RecognitionResult {
+  final String label;
+  final double confidence;
+  final TrashItem? possibleTrashItem;
+
+  const RecognitionResult({
+    required this.label,
+    required this.confidence,
+    this.possibleTrashItem,
+  });
+}
+
+class ObjectClassification {
+  final String detectedObject;
+  final TrashItem trashItem;
+  final double confidence;
+  final List<String> suggestedActions;
+  
+  const ObjectClassification({
+    required this.detectedObject,
+    required this.trashItem,
+    required this.confidence,
+    required this.suggestedActions,
   });
 }
 

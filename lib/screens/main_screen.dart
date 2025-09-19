@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'home_screen.dart';
 import 'history_screen.dart';
 import 'settings_screen.dart';
 import 'profile_screen.dart';
 import 'camera_screen.dart';
+import '../services/achievement_service.dart';
+import '../widgets/achievement_notification.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -23,9 +26,23 @@ class _MainScreenState extends State<MainScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+    // Record daily usage when app opens
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<AchievementService>(context, listen: false).recordDailyUsage();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _screens[_currentIndex],
+      body: Stack(
+        children: [
+          _screens[_currentIndex],
+          const AchievementNotificationWidget(),
+        ],
+      ),
       bottomNavigationBar: _buildBottomNavigationBar(),
       floatingActionButton: _buildCameraButton(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
