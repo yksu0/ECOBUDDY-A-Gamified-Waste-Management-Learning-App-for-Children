@@ -8,6 +8,7 @@ import '../services/object_classifier.dart';
 import '../services/achievement_service.dart';
 import '../services/challenge_service.dart';
 import '../services/almanac_service.dart';
+import '../services/scan_history_service.dart';
 import '../providers/pet_provider.dart';
 import '../models/trash_item.dart';
 
@@ -1460,6 +1461,18 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
   }
 
   void _completeScanning(BuildContext context, TrashItem? trashItem) async {
+    // Save scan to history before any cleanup
+    final scanHistoryService = ScanHistoryService();
+    if (_visionResponse != null) {
+      await scanHistoryService.addScanToHistory(
+        imagePath: widget.imagePath,
+        identifiedTrash: trashItem,
+        confidence: _visionResponse!.confidence,
+        labels: _visionResponse!.labels,
+        wasCorrect: true, // Default to true, user can correct later
+      );
+    }
+    
     // Reward the pet for scanning
     final petProvider = context.read<PetProvider>();
     petProvider.scanTrash();
@@ -1474,12 +1487,8 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
       // petProvider.addBonusXp(trashItem.recyclingPoints);
     }
     
-    // Clean up the image file
-    try {
-      File(widget.imagePath).deleteSync();
-    } catch (e) {
-      // Ignore cleanup errors
-    }
+    // Don't clean up the image file since it's now saved in history
+    // The scan history service will manage image cleanup when needed
     
     // Return to home screen
     Navigator.popUntil(context, (route) => route.isFirst);

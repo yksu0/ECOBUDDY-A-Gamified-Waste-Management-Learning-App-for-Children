@@ -5,6 +5,7 @@ import 'providers/pet_provider.dart';
 import 'services/achievement_service.dart';
 import 'services/challenge_service.dart';
 import 'services/almanac_service.dart';
+import 'services/scan_history_service.dart';
 import 'screens/main_screen.dart';
 
 void main() async {
@@ -14,15 +15,18 @@ void main() async {
   final achievementService = AchievementService();
   final challengeService = ChallengeService();
   final almanacService = AlmanacService();
+  final scanHistoryService = ScanHistoryService();
   
   await achievementService.initialize();
   await challengeService.initialize();
   await almanacService.initialize();
+  await scanHistoryService.initialize();
   
   runApp(EcoBuddyApp(
     achievementService: achievementService,
     challengeService: challengeService,
     almanacService: almanacService,
+    scanHistoryService: scanHistoryService,
   ));
 }
 
@@ -30,12 +34,14 @@ class EcoBuddyApp extends StatelessWidget {
   final AchievementService achievementService;
   final ChallengeService challengeService;
   final AlmanacService almanacService;
+  final ScanHistoryService scanHistoryService;
   
   const EcoBuddyApp({
     super.key, 
     required this.achievementService,
     required this.challengeService,
     required this.almanacService,
+    required this.scanHistoryService,
   });
 
   @override
@@ -53,6 +59,7 @@ class EcoBuddyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: achievementService),
         ChangeNotifierProvider.value(value: challengeService),
         ChangeNotifierProvider.value(value: almanacService),
+        ChangeNotifierProvider.value(value: scanHistoryService),
       ],
       child: MaterialApp(
         title: 'EcoBuddy',
