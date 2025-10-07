@@ -9,8 +9,8 @@ class AchievementService extends ChangeNotifier {
   factory AchievementService() => _instance;
   AchievementService._internal();
 
-  Map<AchievementType, Achievement> _achievements = {};
-  List<Achievement> _recentlyUnlocked = [];
+  final Map<AchievementType, Achievement> _achievements = {};
+  final List<Achievement> _recentlyUnlocked = [];
   int _totalPoints = 0;
   int _currentStreak = 0;
   DateTime? _lastUsageDate;

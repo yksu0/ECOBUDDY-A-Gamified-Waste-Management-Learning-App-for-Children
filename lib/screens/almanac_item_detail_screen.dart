@@ -38,7 +38,7 @@ class AlmanacItemDetailScreen extends StatelessWidget {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      _getCategoryColor(item.category.name).withOpacity(0.8),
+                      _getCategoryColor(item.category.name).withValues(alpha: 0.8),
                       _getCategoryColor(item.category.name),
                     ],
                   ),
@@ -50,7 +50,7 @@ class AlmanacItemDetailScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(24),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Icon(
@@ -63,7 +63,7 @@ class AlmanacItemDetailScreen extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
@@ -100,10 +100,10 @@ class AlmanacItemDetailScreen extends StatelessWidget {
                             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                             decoration: BoxDecoration(
                               color: isScanned 
-                                  ? Colors.green.withOpacity(0.1)
+                                  ? Colors.green.withValues(alpha: 0.1)
                                   : isViewed 
-                                      ? Colors.blue.withOpacity(0.1)
-                                      : Colors.grey.withOpacity(0.1),
+                                      ? Colors.blue.withValues(alpha: 0.1)
+                                      : Colors.grey.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Row(
@@ -150,7 +150,7 @@ class AlmanacItemDetailScreen extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: item.difficultyColor.withOpacity(0.1),
+                          color: item.difficultyColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Row(
@@ -180,7 +180,7 @@ class AlmanacItemDetailScreen extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: Colors.green.withOpacity(0.1),
+                            color: Colors.green.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: const Text(
@@ -198,7 +198,7 @@ class AlmanacItemDetailScreen extends StatelessWidget {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                           decoration: BoxDecoration(
-                            color: Colors.red.withOpacity(0.1),
+                            color: Colors.red.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: const Row(
@@ -329,9 +329,9 @@ class AlmanacItemDetailScreen extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: color.withOpacity(0.2)),
+            border: Border.all(color: color.withValues(alpha: 0.2)),
           ),
           child: Text(
             content,
@@ -393,7 +393,7 @@ class AlmanacItemDetailScreen extends StatelessWidget {
               ),
             ],
           ),
-        )).toList(),
+        )),
       ],
     );
   }
@@ -423,9 +423,9 @@ class AlmanacItemDetailScreen extends StatelessWidget {
           children: locations.map((location) => Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.red.withOpacity(0.1),
+              color: Colors.red.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.red.withOpacity(0.2)),
+              border: Border.all(color: Colors.red.withValues(alpha: 0.2)),
             ),
             child: Text(
               location,
@@ -466,9 +466,9 @@ class AlmanacItemDetailScreen extends StatelessWidget {
           children: aliases.map((alias) => Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.indigo.withOpacity(0.1),
+              color: Colors.indigo.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.indigo.withOpacity(0.2)),
+              border: Border.all(color: Colors.indigo.withValues(alpha: 0.2)),
             ),
             child: Text(
               alias,
@@ -489,17 +489,17 @@ class AlmanacItemDetailScreen extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: item.decompositionTime > 100 
-            ? Colors.red.withOpacity(0.1)
+            ? Colors.red.withValues(alpha: 0.1)
             : item.decompositionTime > 10 
-                ? Colors.orange.withOpacity(0.1)
-                : Colors.green.withOpacity(0.1),
+                ? Colors.orange.withValues(alpha: 0.1)
+                : Colors.green.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: item.decompositionTime > 100 
-              ? Colors.red.withOpacity(0.2)
+              ? Colors.red.withValues(alpha: 0.2)
               : item.decompositionTime > 10 
-                  ? Colors.orange.withOpacity(0.2)
-                  : Colors.green.withOpacity(0.2),
+                  ? Colors.orange.withValues(alpha: 0.2)
+                  : Colors.green.withValues(alpha: 0.2),
         ),
       ),
       child: Row(
@@ -570,9 +570,9 @@ class AlmanacItemDetailScreen extends StatelessWidget {
           children: relatedItems.map((relatedItem) => Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: Colors.teal.withOpacity(0.1),
+              color: Colors.teal.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: Colors.teal.withOpacity(0.2)),
+              border: Border.all(color: Colors.teal.withValues(alpha: 0.2)),
             ),
             child: Text(
               relatedItem,

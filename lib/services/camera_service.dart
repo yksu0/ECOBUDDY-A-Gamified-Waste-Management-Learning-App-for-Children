@@ -74,7 +74,6 @@ class CameraService extends ChangeNotifier {
       final XFile picture = await _controller!.takePicture();
       
       // Copy to our desired location
-      final File imageFile = File(imagePath);
       await File(picture.path).copy(imagePath);
       
       // Clean up the original file

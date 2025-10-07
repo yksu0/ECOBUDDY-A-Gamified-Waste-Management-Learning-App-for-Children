@@ -1,17 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import '../models/trash_item.dart';
 import '../config/api_keys.dart';
 import '../services/waste_classification_ai.dart';
-import 'object_classifier.dart';
 
 class GoogleVisionService {
   static const String _baseUrl = 'https://vision.googleapis.com/v1/images:annotate';
-  static String _apiKey = ApiKeys.googleVisionApiKey;
+  static final String _apiKey = ApiKeys.googleVisionApiKey;
 
   // Initialize the service - API key is now loaded from secure config
   static Future<void> initialize() async {

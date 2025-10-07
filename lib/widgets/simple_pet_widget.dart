@@ -175,7 +175,7 @@ class PetPainter extends CustomPainter {
 
   void _drawShadow(Canvas canvas, Offset center, double bodyRadius) {
     final shadowPaint = Paint()
-      ..color = Colors.black.withOpacity(0.1)
+      ..color = Colors.black.withValues(alpha: 0.1)
       ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
     
     canvas.drawOval(
@@ -385,7 +385,7 @@ class PetPainter extends CustomPainter {
 
   void _drawCheeks(Canvas canvas, Offset center, double bodyRadius) {
     final cheekPaint = Paint()
-      ..color = Colors.pink.withOpacity(0.6)
+      ..color = Colors.pink.withValues(alpha: 0.6)
       ..style = PaintingStyle.fill;
     
     final cheekRadius = bodyRadius * 0.1;

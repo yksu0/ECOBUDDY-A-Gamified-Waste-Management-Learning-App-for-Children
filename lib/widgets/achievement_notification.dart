@@ -13,9 +13,9 @@ class AchievementNotificationWidget extends StatefulWidget {
 class _AchievementNotificationWidgetState extends State<AchievementNotificationWidget>
     with TickerProviderStateMixin {
   
-  List<AnimationController> _controllers = [];
-  List<Animation<double>> _slideAnimations = [];
-  List<Animation<double>> _fadeAnimations = [];
+  final List<AnimationController> _controllers = [];
+  final List<Animation<double>> _slideAnimations = [];
+  final List<Animation<double>> _fadeAnimations = [];
 
   @override
   void initState() {
@@ -158,15 +158,15 @@ class _AchievementNotificationWidgetState extends State<AchievementNotificationW
           borderRadius: BorderRadius.circular(16),
           gradient: LinearGradient(
             colors: [
-              achievement.color.withOpacity(0.8),
-              achievement.color.withOpacity(0.6),
+              achievement.color.withValues(alpha: 0.8),
+              achievement.color.withValues(alpha: 0.6),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           boxShadow: [
             BoxShadow(
-              color: achievement.color.withOpacity(0.4),
+              color: achievement.color.withValues(alpha: 0.4),
               blurRadius: 12,
               spreadRadius: 2,
               offset: const Offset(0, 4),
@@ -186,7 +186,7 @@ class _AchievementNotificationWidgetState extends State<AchievementNotificationW
                   borderRadius: BorderRadius.circular(25),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.white.withOpacity(0.5),
+                      color: Colors.white.withValues(alpha: 0.5),
                       blurRadius: 8,
                       spreadRadius: 2,
                     ),
@@ -306,9 +306,9 @@ class AchievementProgressWidget extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -329,7 +329,7 @@ class AchievementProgressWidget extends StatelessWidget {
                 const SizedBox(height: 4),
                 LinearProgressIndicator(
                   value: progress,
-                  backgroundColor: color.withOpacity(0.2),
+                  backgroundColor: color.withValues(alpha: 0.2),
                   valueColor: AlwaysStoppedAnimation<Color>(color),
                   minHeight: 4,
                 ),

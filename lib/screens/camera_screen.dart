@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:camera/camera.dart';
 import '../services/camera_service.dart';
 import '../services/google_vision_service.dart';
-import '../services/object_classifier.dart';
 import '../services/achievement_service.dart';
 import '../services/challenge_service.dart';
 import '../services/almanac_service.dart';
@@ -155,7 +154,7 @@ class _CameraScreenState extends State<CameraScreen> {
       );
     }
 
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: double.infinity,
       child: FittedBox(
@@ -181,7 +180,7 @@ class _CameraScreenState extends State<CameraScreen> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              Colors.black.withOpacity(0.7),
+              Colors.black.withValues(alpha: 0.7),
               Colors.transparent,
             ],
           ),
@@ -239,7 +238,7 @@ class _CameraScreenState extends State<CameraScreen> {
             begin: Alignment.bottomCenter,
             end: Alignment.topCenter,
             colors: [
-              Colors.black.withOpacity(0.8),
+              Colors.black.withValues(alpha: 0.8),
               Colors.transparent,
             ],
           ),
@@ -316,7 +315,7 @@ class _CameraScreenState extends State<CameraScreen> {
       height: 56,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: Colors.black.withOpacity(0.5),
+        color: Colors.black.withValues(alpha: 0.5),
         border: Border.all(color: Colors.white, width: 2),
       ),
       child: IconButton(
@@ -338,7 +337,7 @@ class _CameraScreenState extends State<CameraScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.green.withOpacity(0.9),
+          color: Colors.green.withValues(alpha: 0.9),
           borderRadius: BorderRadius.circular(12),
         ),
         child: const Column(
@@ -814,7 +813,7 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -1024,9 +1023,9 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.purple.withOpacity(0.1),
+        color: Colors.purple.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.purple.withOpacity(0.3)),
+        border: Border.all(color: Colors.purple.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1060,7 +1059,7 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
                 ),
               ],
             ),
-          )).toList(),
+          )),
         ],
       ),
     );
@@ -1104,9 +1103,9 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.1),
+        color: Colors.blue.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.blue.withOpacity(0.3)),
+        border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1247,9 +1246,9 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: indicatorColor.withOpacity(0.1),
+        color: indicatorColor.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: indicatorColor.withOpacity(0.3)),
+        border: Border.all(color: indicatorColor.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [
@@ -1279,7 +1278,7 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
           const SizedBox(height: 12),
           LinearProgressIndicator(
             value: confidence,
-            backgroundColor: indicatorColor.withOpacity(0.2),
+            backgroundColor: indicatorColor.withValues(alpha: 0.2),
             valueColor: AlwaysStoppedAnimation<Color>(indicatorColor),
             minHeight: 6,
           ),
@@ -1290,7 +1289,7 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
                 : 'Please review the result below. You can manually correct if needed.',
             style: TextStyle(
               fontSize: 12,
-              color: indicatorColor.withOpacity(0.8),
+              color: indicatorColor.withValues(alpha: 0.8),
             ),
             textAlign: TextAlign.center,
           ),
@@ -1306,9 +1305,9 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.1),
+        color: Colors.blue.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.blue.withOpacity(0.3)),
+        border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1341,7 +1340,7 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: Colors.blue.withOpacity(0.2),
+                    color: Colors.blue.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
@@ -1355,14 +1354,14 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
                 ),
               ],
             ),
-          )).toList(),
+          )),
         ],
       ),
     );
   }
 
   Widget _buildManualCorrectionButton() {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       child: OutlinedButton.icon(
         onPressed: _showManualCorrectionDialog,
@@ -1461,6 +1460,12 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
   }
 
   void _completeScanning(BuildContext context, TrashItem? trashItem) async {
+    // Capture providers before async operations
+    final petProvider = context.read<PetProvider>();
+    final challengeService = context.read<ChallengeService>();
+    final navigator = Navigator.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    
     // Save scan to history before any cleanup
     final scanHistoryService = ScanHistoryService();
     if (_visionResponse != null) {
@@ -1473,12 +1478,13 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
       );
     }
     
+    // Check if still mounted before UI operations
+    if (!mounted) return;
+    
     // Reward the pet for scanning
-    final petProvider = context.read<PetProvider>();
     petProvider.scanTrash();
     
     // Track daily usage for challenges
-    final challengeService = context.read<ChallengeService>();
     await challengeService.recordDailyUsage();
     
     // Additional points for successful identification
@@ -1490,21 +1496,23 @@ class _ScanResultScreenState extends State<ScanResultScreen> {
     // Don't clean up the image file since it's now saved in history
     // The scan history service will manage image cleanup when needed
     
-    // Return to home screen
-    Navigator.popUntil(context, (route) => route.isFirst);
-    
-    // Show success message
-    String message = '🎉 Bud is so happy! You helped the environment!';
-    if (trashItem != null) {
-      message = '🎉 Great job! Bud learned about ${trashItem.name}!';
+    // Return to home screen and show success message
+    if (mounted) {
+      navigator.popUntil((route) => route.isFirst);
+      
+      // Show success message
+      String message = '🎉 Bud is so happy! You helped the environment!';
+      if (trashItem != null) {
+        message = '🎉 Great job! Bud learned about ${trashItem.name}!';
+      }
+      
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 3),
+        ),
+      );
     }
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.green,
-        duration: const Duration(seconds: 3),
-      ),
-    );
   }
 }

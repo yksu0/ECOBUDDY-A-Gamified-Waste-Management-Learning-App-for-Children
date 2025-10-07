@@ -72,10 +72,15 @@ class _ChallengesScreenState extends State<ChallengesScreen>
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () async {
+          if (!mounted) return;
+          
           final challengeService = Provider.of<ChallengeService>(context, listen: false);
+          final messenger = ScaffoldMessenger.of(context);
+          
           await challengeService.refreshChallenges();
+          
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
+            messenger.showSnackBar(
               const SnackBar(
                 content: Text('Challenges refreshed!'),
                 backgroundColor: Colors.green,
@@ -151,7 +156,7 @@ class _ChallengesScreenState extends State<ChallengesScreen>
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
+        color: Colors.white.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Column(
@@ -193,7 +198,7 @@ class _ChallengesScreenState extends State<ChallengesScreen>
             ),
             const SizedBox(height: 16),
             Text(
-              'No ${type} challenges available',
+              'No $type challenges available',
               style: TextStyle(
                 fontSize: 18,
                 color: Colors.grey[600],
@@ -258,7 +263,7 @@ class _ChallengesScreenState extends State<ChallengesScreen>
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: _getChallengeColor(challenge).withOpacity(0.1),
+                      color: _getChallengeColor(challenge).withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(

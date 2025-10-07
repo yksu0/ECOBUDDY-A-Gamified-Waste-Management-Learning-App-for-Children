@@ -84,7 +84,7 @@ class AlmanacItem {
     } else if (decompositionTime < 100) {
       return '$decompositionTime years';
     } else if (decompositionTime < 1000) {
-      return '${decompositionTime}+ years';
+      return '$decompositionTime+ years';
     } else {
       return '1000+ years';
     }

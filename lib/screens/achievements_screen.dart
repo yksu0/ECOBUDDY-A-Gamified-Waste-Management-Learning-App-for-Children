@@ -94,7 +94,7 @@ class _AchievementsScreenState extends State<AchievementsScreen>
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.green.withOpacity(0.3),
+            color: Colors.green.withValues(alpha: 0.3),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -137,9 +137,9 @@ class _AchievementsScreenState extends State<AchievementsScreen>
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
+        color: Colors.white.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.3)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.3)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -218,13 +218,13 @@ class _AchievementsScreenState extends State<AchievementsScreen>
           borderRadius: BorderRadius.circular(16),
           gradient: isUnlocked
               ? LinearGradient(
-                  colors: [achievement.color.withOpacity(0.1), Colors.white],
+                  colors: [achievement.color.withValues(alpha: 0.1), Colors.white],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 )
               : null,
           border: isUnlocked
-              ? Border.all(color: achievement.color.withOpacity(0.3), width: 2)
+              ? Border.all(color: achievement.color.withValues(alpha: 0.3), width: 2)
               : null,
         ),
         child: Padding(
@@ -237,8 +237,8 @@ class _AchievementsScreenState extends State<AchievementsScreen>
                 height: 60,
                 decoration: BoxDecoration(
                   color: isUnlocked 
-                      ? achievement.color.withOpacity(0.2)
-                      : Colors.grey.withOpacity(0.2),
+                      ? achievement.color.withValues(alpha: 0.2)
+                      : Colors.grey.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(30),
                   border: Border.all(
                     color: isUnlocked ? achievement.color : Colors.grey,

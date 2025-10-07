@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../services/almanac_service.dart';
 import '../models/almanac_item.dart';
-import '../models/trash_item.dart';
 import 'almanac_item_detail_screen.dart';
 
 class AlmanacScreen extends StatefulWidget {
@@ -96,7 +95,7 @@ class _AlmanacScreenState extends State<AlmanacScreen>
         color: Colors.green[50],
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -204,7 +203,7 @@ class _AlmanacScreenState extends State<AlmanacScreen>
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: category.color.withOpacity(0.1),
+                      color: category.color.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
@@ -320,7 +319,7 @@ class _AlmanacScreenState extends State<AlmanacScreen>
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -411,7 +410,7 @@ class _AlmanacScreenState extends State<AlmanacScreen>
                   Container(
                     width: 1,
                     height: 40,
-                    color: Colors.white.withOpacity(0.3),
+                    color: Colors.white.withValues(alpha: 0.3),
                   ),
                   Expanded(
                     child: _buildProgressStat(
@@ -423,7 +422,7 @@ class _AlmanacScreenState extends State<AlmanacScreen>
                   Container(
                     width: 1,
                     height: 40,
-                    color: Colors.white.withOpacity(0.3),
+                    color: Colors.white.withValues(alpha: 0.3),
                   ),
                   Expanded(
                     child: _buildProgressStat(
@@ -457,7 +456,7 @@ class _AlmanacScreenState extends State<AlmanacScreen>
         Text(
           label,
           style: TextStyle(
-            color: Colors.white.withOpacity(0.9),
+            color: Colors.white.withValues(alpha: 0.9),
             fontSize: 12,
           ),
           textAlign: TextAlign.center,
@@ -480,7 +479,7 @@ class _AlmanacScreenState extends State<AlmanacScreen>
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -549,7 +548,7 @@ class _AlmanacScreenState extends State<AlmanacScreen>
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: _getCategoryColor(item.category.name).withOpacity(0.1),
+                  color: _getCategoryColor(item.category.name).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
@@ -589,7 +588,7 @@ class _AlmanacScreenState extends State<AlmanacScreen>
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                           decoration: BoxDecoration(
-                            color: item.difficultyColor.withOpacity(0.1),
+                            color: item.difficultyColor.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
@@ -606,7 +605,7 @@ class _AlmanacScreenState extends State<AlmanacScreen>
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: Colors.green.withOpacity(0.1),
+                              color: Colors.green.withValues(alpha: 0.1),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: const Text(
@@ -668,7 +667,7 @@ class _AlmanacScreenState extends State<AlmanacScreen>
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: category.color.withOpacity(0.1),
+                color: category.color.withValues(alpha: 0.1),
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
               ),
               child: Column(

@@ -1,4 +1,4 @@
-// This is a basic Flutter widget test.
+// This is a basic Flutter widget test for EcoBuddy app.
 //
 // To perform an interaction with a widget in your test, use the WidgetTester
 // utility in the flutter_test package. For example, you can send tap and scroll
@@ -7,24 +7,29 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:ecobud/main.dart';
+import 'package:ecobud/services/achievement_service.dart';
+import 'package:ecobud/services/challenge_service.dart';
+import 'package:ecobud/services/almanac_service.dart';
+import 'package:ecobud/services/scan_history_service.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+  testWidgets('EcoBuddy app smoke test', (WidgetTester tester) async {
+    // Initialize services for testing
+    final achievementService = AchievementService();
+    final challengeService = ChallengeService();
+    final almanacService = AlmanacService();
+    final scanHistoryService = ScanHistoryService();
+    
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    await tester.pumpWidget(EcoBuddyApp(
+      achievementService: achievementService,
+      challengeService: challengeService,
+      almanacService: almanacService,
+      scanHistoryService: scanHistoryService,
+    ));
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verify that the app loads without crashing
+    expect(find.byType(MaterialApp), findsOneWidget);
   });
 }

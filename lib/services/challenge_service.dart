@@ -10,8 +10,8 @@ class ChallengeService extends ChangeNotifier {
   factory ChallengeService() => _instance;
   ChallengeService._internal();
 
-  List<Challenge> _activeChallenges = [];
-  List<Challenge> _completedChallenges = [];
+  final List<Challenge> _activeChallenges = [];
+  final List<Challenge> _completedChallenges = [];
   int _totalCoins = 0;
   int _dailyStreak = 0;
   DateTime? _lastActiveDate;

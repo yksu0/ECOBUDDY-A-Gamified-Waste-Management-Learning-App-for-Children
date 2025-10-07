@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/pet_provider.dart';
+import '../models/pet.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -84,7 +85,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsSection(pet) {
+  Widget _buildStatsSection(Pet pet) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -126,7 +127,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAchievementSection(pet) {
+  Widget _buildAchievementSection(Pet pet) {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -189,7 +190,7 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  String _getEvolutionStageText(evolutionStage) {
+  String _getEvolutionStageText(PetEvolutionStage evolutionStage) {
     switch (evolutionStage.toString()) {
       case 'PetEvolutionStage.baby':
         return 'Baby';

@@ -7,7 +7,6 @@ import '../services/almanac_service.dart';
 import '../widgets/simple_pet_widget.dart';
 import '../widgets/achievement_notification.dart';
 import '../models/pet.dart';
-import 'camera_screen.dart';
 import 'achievements_screen.dart';
 import 'challenges_screen.dart';
 import 'almanac_screen.dart';
@@ -74,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         borderRadius: BorderRadius.circular(10),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
+                            color: Colors.black.withValues(alpha: 0.2),
                             blurRadius: 2,
                             offset: const Offset(0, 1),
                           ),
@@ -131,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           borderRadius: BorderRadius.circular(10),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
+                              color: Colors.black.withValues(alpha: 0.2),
                               blurRadius: 2,
                               offset: const Offset(0, 1),
                             ),
@@ -188,7 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           borderRadius: BorderRadius.circular(10),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
+                              color: Colors.black.withValues(alpha: 0.2),
                               blurRadius: 2,
                               offset: const Offset(0, 1),
                             ),
@@ -341,7 +340,7 @@ class _HomeScreenState extends State<HomeScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -353,7 +352,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: _getEvolutionColor(pet.evolutionStage).withOpacity(0.2),
+              color: _getEvolutionColor(pet.evolutionStage).withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: _getEvolutionColor(pet.evolutionStage),
@@ -383,7 +382,7 @@ class _HomeScreenState extends State<HomeScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: _getEmotionColor(pet.emotionalState).withOpacity(0.2),
+              color: _getEmotionColor(pet.emotionalState).withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(15),
             ),
             child: Row(
@@ -554,7 +553,7 @@ class _HomeScreenState extends State<HomeScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.2),
+                color: color.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
@@ -780,9 +779,9 @@ class _HomeScreenState extends State<HomeScreen> {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         children: [
@@ -803,7 +802,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text(
                   title,
                   style: TextStyle(
-                    color: color.withOpacity(0.8),
+                    color: color.withValues(alpha: 0.8),
                     fontSize: 12,
                   ),
                 ),
